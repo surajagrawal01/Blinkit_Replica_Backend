@@ -1,4 +1,5 @@
 const User = require("../models/user-model")
+const Product = require("../models/product-model")
 
 //third party packages
 const _ = require("lodash")
@@ -82,7 +83,7 @@ userCntrl.login = async (req, res) => {
 //listing a user information
 userCntrl.list = async(req, res)=>{
     try{
-        const user = await User.findById(req.user.id)
+        const user = await User.findById(req.user.id).select(['_id', 'name','geoLocation', 'cartItems', 'role', 'email'])
         res.json(user)
     }catch(err){
         console.log(err)
@@ -94,6 +95,10 @@ userCntrl.list = async(req, res)=>{
 userCntrl.addItem = async(req, res)=>{
     const body = req.body
     try{
+        const product = await Product.findById(body.productId)
+        if(!product){
+            return res.status(404).json({error:'Product not found'})
+        }
         const user = await User.findById(req.user.id)
         user.cartItems = [...user.cartItems, body]
         await user.save()
@@ -109,6 +114,17 @@ userCntrl.updateItem = async(req, res)=>{
     const type = req.query.type
     const id = req.params.id
     try{
+        const product = await Product.findById(id)
+        if(!product){
+            const user = await User.findOneAndUpdate(
+                { _id: req.user.id },
+                //The $pull operator removes from an array all elements that match a specified condition.
+                { $pull: { cartItems: { productId: id } } },
+                { new: true }
+              );
+            return res.status(404).json({error:'Product not found'})
+
+        }
         if(type == 'inc'){
             const user = await User.findOneAndUpdate(
                 { _id: req.user.id, 'cartItems.productId': id },
