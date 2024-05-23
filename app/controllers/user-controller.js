@@ -20,6 +20,7 @@ userCntrl.create = async (req, res) => {
         const body = _.pick(req.body, ['name', 'email', 'password', 'location'])
         const user = new User(body)
 
+        //to obtain lattitude and longitude of user location using geoapify
         const addressBody = _.pick(req.body.location, ['houseNumber', 'locality', 'area', 'city', 'state', 'pincode', 'country'])
 
         const searchString = `${addressBody.locality}, ${addressBody.area}, ${addressBody.city}, ${addressBody.pincode}, ${addressBody.state}, ${addressBody.country}`
@@ -32,6 +33,7 @@ userCntrl.create = async (req, res) => {
         const location = {lat : mapResponse.data.features[0].properties.lat, lng: mapResponse.data.features[0].properties.lon}
         
         user.geoLocation = location
+
         //role implementation
         const countDocuments = await User.countDocuments()
         if (countDocuments === 0) {
@@ -53,6 +55,7 @@ userCntrl.create = async (req, res) => {
     }
 }
 
+//login handling, token generation
 userCntrl.login = async (req, res) => {
     const body = _.pick(req.body, ['email', 'password'])
     try {
@@ -76,6 +79,7 @@ userCntrl.login = async (req, res) => {
     }
 }
 
+//listing a user information
 userCntrl.list = async(req, res)=>{
     try{
         const user = await User.findById(req.user.id)
@@ -86,6 +90,7 @@ userCntrl.list = async(req, res)=>{
     }
 }
 
+//adding item in the cart of user
 userCntrl.addItem = async(req, res)=>{
     const body = req.body
     try{
@@ -99,6 +104,7 @@ userCntrl.addItem = async(req, res)=>{
     }
 }
 
+//updating the items in the cart
 userCntrl.updateItem = async(req, res)=>{
     const type = req.query.type
     const id = req.params.id
@@ -128,7 +134,23 @@ userCntrl.updateItem = async(req, res)=>{
             res.json(user.cartItems)
         }
     }catch(err){
+        console.log(err)
+        res.status(500).json({ error: 'Internal server error' })
+    }
+}
 
+//clearing cart once booking done
+userCntrl.clearCart = async(req, res)=>{
+    try{
+        const user = await User.findOneAndUpdate(
+            { _id: req.user.id},
+            { cartItems : [] },
+            { new: true }
+        );
+        return res.json(user.cartItems)
+    }catch(err){
+        console.log(err)
+        res.status(500).json({ error: 'Internal server error' })
     }
 }
 

@@ -43,9 +43,6 @@ const userRegistrationSchema = {
         isLength: {
             options: { min: 8, max: 128 },
             errorMessage: 'password field value must be between 8-128 characters'
-        },
-        isStrongPassword: {
-            errorMessage: 'password must have atleast one uppercase, one number and one special character'
         }
     }
 }

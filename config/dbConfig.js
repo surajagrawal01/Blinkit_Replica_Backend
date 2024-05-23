@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 
+//db configuration
 const configDB = async()=>{
     try{
         await mongoose.connect("mongodb://127.0.0.1:27017/BlinkitReplica")

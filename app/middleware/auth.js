@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
 
+//for authentication of user
 const authenticateUser = async(req, res, next)=>{
     const token = req.headers['authorization']
     if(!token){
@@ -19,6 +20,7 @@ const authenticateUser = async(req, res, next)=>{
     }
 }
 
+//for authorization
 const authorizeUser = (permittedRoles)=>{
     return ((req, res, next)=>{
         if(permittedRoles.includes(req.user.role)){

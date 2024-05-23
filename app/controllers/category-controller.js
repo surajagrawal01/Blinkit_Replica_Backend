@@ -20,6 +20,7 @@ categoryCntrl.create = async(req, res)=>{
     }
 }
 
+//listing all categories
 categoryCntrl.lists = async(req, res)=>{
     try{
         const categories = await Category.find()
